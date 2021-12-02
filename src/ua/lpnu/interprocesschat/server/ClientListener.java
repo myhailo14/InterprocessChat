@@ -3,12 +3,14 @@ package ua.lpnu.interprocesschat.server;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 public class ClientListener extends Thread {
+
+    private final Logger log = Logger.getLogger(ClientListener.class.getName());
 
     private Client client;
 
@@ -29,39 +31,36 @@ public class ClientListener extends Thread {
             this.socket = socket;
             start();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info( "Cannot get input and output streams");
         }
     }
 
-    private int indexOf(byte[] bytes) {
-        int i = 0;
-        while (bytes[i++] != -1);
-        return i - 1;
+    public boolean isSocketClosed() {
+        return socket.isClosed();
     }
 
     @Override
     public void run() {
         byte[] buffer = new byte[1024];
         Arrays.fill(buffer, (byte) -1);
+        CommandDispatcher commandDispatcher = new CommandDispatcher(buffer, client, messages);
         while (true) {
             try {
                 Arrays.fill(buffer, (byte) -1);
                 int read = in.read(buffer);
                 if (read != -1) {
-                    String strMessage = new String(buffer, 0, indexOf(buffer), StandardCharsets.UTF_16LE);
-                    if (strMessage.contains("auth")) {
-                        this.client.setName(strMessage.replace("auth ", ""));
-                        messages.add(new Message(this.client, Message.Type.UPDATE));
-                    } else if (strMessage.contains("message")) {
-                        messages.add(new Message(this.client, Message.Type.MESSAGE, strMessage.replace("message ", "")));
+                    boolean result = commandDispatcher.dispatch();
+                    if (!result) {
+                        log.info(client + " sent incorrect message.");
                     }
                 } else {
+                    log.info(client + " disconnected from the server");
                     closeSocket();
                     return;
                 }
             } catch (IOException e) {
                 closeSocket();
-                e.printStackTrace();
+                log.info("Socket was closed incorrectly");
                 return;
             }
         }
@@ -71,7 +70,7 @@ public class ClientListener extends Thread {
         try {
             socket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("Cannot close socket");
         }
     }
 
@@ -84,8 +83,15 @@ public class ClientListener extends Thread {
             out.write(message.getBytes(StandardCharsets.UTF_16LE));
             out.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.info("Cannot send a message");
         }
     }
 
+    public void tap() {
+        try {
+            in.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

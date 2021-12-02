@@ -1,5 +1,6 @@
 package ua.lpnu.interprocesschat.server;
 
-public interface Event {
+@FunctionalInterface
+public interface AddEvent {
     void on();
 }

@@ -4,8 +4,6 @@ public class Client {
 
     private String name;
 
-    public Client() {}
-
     public String getName() {
         return name;
     }
@@ -14,4 +12,8 @@ public class Client {
         this.name = name;
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
