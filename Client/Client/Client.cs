@@ -51,13 +51,10 @@ namespace SocketChat.Client
             if (Socket != null)
             {
                 Socket.Shutdown(SocketShutdown.Both);
-                Socket.Dispose();
-                Socket = null;
+                Socket.Disconnect(true);
             }
-            if (Thread != null)
-            {
-                Thread = null;
-            }
+
+            Thread?.Abort();
 
             _isDisposed = true;
         }

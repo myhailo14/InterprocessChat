@@ -137,7 +137,7 @@ namespace SocketChat.Client
 
         public void StartConnection()
         {
-            
+
             if (!IsActive)
             {
                 try
@@ -148,12 +148,12 @@ namespace SocketChat.Client
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+
+                return;
             }
-            else
-            {
-                _chatInterface.StopConnection();
-            }
-            
+
+            _chatInterface.StopConnection();
+
         }
 
         public void SendMessage(string messageContent)

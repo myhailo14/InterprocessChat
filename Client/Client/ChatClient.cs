@@ -45,19 +45,24 @@ namespace SocketChat.Client
             Dispatcher = Dispatcher.CurrentDispatcher;
             ClientList = new BindingList<Client>();
             ChatList = new BindingList<string>();
-
+            
             SourceUsername = "Client" + new Random().Next(0, 99); // random username
         }
 
-        public void StartConnection()
+        public async void StartConnection()
         {
             if (IsActive)
             {
                 return;
             }
 
-            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            Socket.Connect(IPEndPoint);
+            if (Socket == null)
+            {
+                Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            }
+
+            await Socket.ConnectAsync(IPEndPoint);
+
             Auth(SourceUsername);
 
             Thread = new Thread(ReceiveMessages);
@@ -111,8 +116,9 @@ namespace SocketChat.Client
                     if (strMessage.Contains("update"))
                     {
                         HandleUpdate(strMessage);
+                        return true;
                     }
-                    else if (strMessage.Contains("message"))
+                    if (strMessage.Contains("message"))
                     {
                         HandleMessage(strMessage);
                     }
@@ -186,12 +192,11 @@ namespace SocketChat.Client
         {
             if (Socket != null && Thread != null)
             {
-                //this.thread.Abort(); MainThread = null;
+                Thread.Abort();
                 Socket.Shutdown(SocketShutdown.Both);
-                //this.socket.Disconnect(false);
-                Socket.Dispose();
-                Socket = null;
-                Thread = null;
+                Socket.Disconnect(true);
+                // Socket = null;
+                // Thread = null;
             }
 
             ChatList.Clear();
