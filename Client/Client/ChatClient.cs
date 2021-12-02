@@ -145,7 +145,7 @@ namespace SocketChat.Client
                     strMessage.Replace("message ", ""),
                     "[a-zA-Zа-яА-ЯїЇґҐ0-9]+"
                 );
-            string message = String.Join(" ", matches);
+            string message = "";
             foreach (Match match in matches)
             {
                 message += match.Value + " ";
