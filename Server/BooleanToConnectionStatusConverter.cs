@@ -1,66 +1,49 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace SocketChat
 {
     public class BooleanToConnectionStatusConverter : IMultiValueConverter
     {
-        private const string srvTrue = "Server is active";
-        private const string srvFalse = "Server is stopped";
-        private const string clntTrue = "Connected to server";
-        private const string clntFalse = "Disconnected from server";
-        private const string error = "Cannot detect connection status";
+        private const string _serverActive = "Server is active";
+        private const string _serverStopped = "Server is stopped";
+        private const string _clientConnected = "Connected to server";
+        private const string _clientDisconnected = "Disconnected from server";
+        private const string _error = "Cannot detect connection status";
 
-        public object Convert(object[] value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isServer = (bool)value[0];
-            bool isActive = (bool)value[1];
+            if (values.OfType<bool>().Count() < 1)
+            {
+                throw new ArgumentException("Invalid array.", nameof(values));
+            }
+            bool isServer = (bool)values[0];
+            bool isActive = (bool)values[1];
 
             if (isServer && isActive)
             {
-                return srvTrue;
+                return _serverActive;
             }
 
             if (isServer && !isActive)
             {
-                return srvFalse;
+                return _serverStopped;
             }
 
             if (!isServer && isActive)
             {
-                return clntTrue;
+                return _clientConnected;
             }
 
             if (!isServer && !isActive)
             {
-                return clntFalse;
-            }
-            else
-            {
-                return error;
+                return _clientDisconnected;
             }
 
+            return _error;
 
-            //if (value is bool)
-            //{
-            //    if ((bool)value)
-            //    {
-            //        return strTrue;
-            //    }
-            //}
-
-            //return strFalse;
-        }
-
-        public object ConvertBack(object[] value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            //return value.ToString() == strTrue;
-
-            bool isServer = (bool)value[0];
-            bool isActive = (bool)value[1];
-
-            return value[0].ToString() == error;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

@@ -8,9 +8,9 @@ namespace SocketChat
 {
     public class Client : IDisposable, INotifyPropertyChanged
     {
-        private int id;
-        private bool isDisposed;
-        private string username;
+        //private int _id;
+        private bool _isDisposed;
+        private string _username;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -18,35 +18,19 @@ namespace SocketChat
 
         public Thread Thread { get; set; }
 
-        public int ID
-        {
-            get
-            {
-                return this.id;
-            }
-            set
-            {
-                this.id = value;
-                this.NotifyPropertyChanged("ID");
-            }
-        }
-
         public string Username
         {
-            get
-            {
-                return this.username;
-            }
+            get => _username;
             set
             {
-                this.username = value;
-                this.NotifyPropertyChanged("Username");
+                _username = value;
+                NotifyPropertyChanged("Username");
             }
         }
 
         public Client()
         {
-            this.isDisposed = false;
+            _isDisposed = false;
         }
 
         public static bool IsSocketConnected(Socket s)
@@ -56,46 +40,38 @@ namespace SocketChat
                 return false;
             }
 
-            if (s.Available == 0)
-            {
-                if (s.Poll(1000, SelectMode.SelectRead))
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            if (s.Available != 0) return true;
+            return !s.Poll(1000, SelectMode.SelectRead);
         }
 
         public void Dispose()
         {
-            if (!this.isDisposed)
-            {
-                if (this.Socket != null)
-                {
-                    this.Socket.Shutdown(SocketShutdown.Both);
-                    this.Socket.Dispose();
-                    this.Socket = null;
-                }
-                if (this.Thread != null)
-                {
-                    this.Thread = null;
-                }
+            if (_isDisposed) return;
 
-                this.isDisposed = true;
+            if (Socket != null)
+            {
+                Socket.Shutdown(SocketShutdown.Both);
+                Socket.Dispose();
+                Socket = null;
             }
+            if (Thread != null)
+            {
+                Thread = null;
+            }
+
+            _isDisposed = true;
         }
 
         public bool IsSocketConnected()
         {
-            return IsSocketConnected(this.Socket);
+            return IsSocketConnected(Socket);
         }
 
         public void SendMessage(string message)
         {
             try
             {
-                this.Socket.Send(Encoding.Unicode.GetBytes(message));
+                Socket.Send(Encoding.Unicode.GetBytes(message));
             }
             catch (Exception)
             {
@@ -105,7 +81,7 @@ namespace SocketChat
 
         private void NotifyPropertyChanged(string propName)
         {
-            this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propName));
         }
     }
 }

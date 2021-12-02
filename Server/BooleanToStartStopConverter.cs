@@ -1,61 +1,25 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 using System.Windows.Data;
 
 namespace SocketChat
 {
     public class BooleanToStartStopConverter : IMultiValueConverter
     {
-        private const string srvTrue = "Stop";
-        private const string srvFalse = "Start";
-        private const string clntTrue = "Disconnect";
-        private const string clntFalse = "Connect";
-        private const string error = "?";
+        private const string _clientDisconnect = "Disconnect";
+        private const string _clientConnect = "Connect";
 
-        public object Convert(object[] value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            bool isServer = (bool)value[0];
-            bool isActive = (bool)value[1];
-
-            if (isServer && isActive)
+            if (values.Length < 1 && values[0].GetType() != typeof(bool))
             {
-                return srvTrue;
+                throw new ArgumentException("Invalid values.", nameof(values));
             }
 
-            if (isServer && !isActive)
-            {
-                return srvFalse;
-            }
-
-            if (!isServer && isActive)
-            {
-                return clntTrue;
-            }
-
-            if (!isServer && !isActive)
-            {
-                return clntFalse;
-            }
-            else
-            {
-                return error;
-            }
-
-            //if (value is bool)
-            //{
-            //    if ((bool)value)
-            //    {
-            //        return strTrue;
-            //    }
-            //}
-
-            //return strFalse;
+            bool isActive = (bool) values[0];
+            return isActive ? _clientDisconnect : _clientConnect;
         }
-
-        //public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        //{
-        //    //return value.ToString() == strTrue;
-        //}
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {

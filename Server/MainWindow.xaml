@@ -20,13 +20,10 @@
 
         <StatusBar Name="sbMain" DockPanel.Dock="Bottom">
             <StatusBarItem>
-                <TextBlock Background="{Binding Path=IsActive,Converter={StaticResource BooleanToBrushConverter}}">
-                    <TextBlock.Text>
-                        <MultiBinding Converter="{StaticResource BooleanToConnectionStatusConverter}">
-                            <Binding Path="IsServer"/>
-                            <Binding Path="IsActive"/>
-                        </MultiBinding>
-                    </TextBlock.Text>
+                <TextBlock Background="{Binding Path=IsActive, Converter={StaticResource BooleanToBrushConverter}}" >
+                    <!--<TextBlock.Text>
+                        <Binding Path="IsActive" />
+                    </TextBlock.Text>-->
                 </TextBlock>
             </StatusBarItem>
             <Separator/>
@@ -39,8 +36,8 @@
         </StatusBar>
 
         <DockPanel IsEnabled="{Binding Path=IsActive}" DockPanel.Dock="Right">
-            <TextBlock DockPanel.Dock="Top" Text="Active Clients" TextAlignment="Center"/>
-            <ListBox Name="lbActiveClients" ItemsSource="{Binding Path=ClientList}" DisplayMemberPath="Username" SelectedItem ="{Binding SelectedUsername}"/>
+            <TextBlock DockPanel.Dock="Top" Text="Active Users" TextAlignment="Center"/>
+            <ListBox Name="lbActiveClients" ItemsSource="{Binding Path=ClientList}" DisplayMemberPath="Username"/>
         </DockPanel>
 
         <Grid Name="gControl" DockPanel.Dock="Top">
@@ -57,21 +54,23 @@
 
             <TextBlock Grid.Column="0" Grid.Row="0" Text="IP Address:"/>
             <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=IpAddress, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" 
-                     IsEnabled="{Binding Path=IsActive, Converter={StaticResource BooleanToInverseConverter}}"/>
+                     IsEnabled="{Binding Path=IsActive}"/>
+            <!--, Converter={StaticResource BooleanToInverseConverter}-->
             <xctk:IntegerUpDown Grid.Column="2" Grid.Row="0" Value="{Binding Path=Port, UpdateSourceTrigger=PropertyChanged, ValidatesOnExceptions=True}" 
-                                Width="70" IsEnabled="{Binding Path=IsActive, Converter={StaticResource BooleanToInverseConverter}}"/>
+                                Width="70" IsEnabled="{Binding Path=IsActive}"/>
+            <!--, Converter={StaticResource BooleanToInverseConverter}-->
 
             <TextBlock Grid.Column="0" Grid.Row="1" Text="Username:"/>
             <TextBox Grid.Column="1" Grid.Row="1" Text="{Binding Path=SourceUsername, UpdateSourceTrigger=PropertyChanged}"
-                     IsEnabled="{Binding Path=IsActive, Converter={StaticResource BooleanToInverseConverter}}"/>
+                     IsEnabled="{Binding Path=IsActive}"/>
+            <!--, Converter={StaticResource BooleanToInverseConverter}-->
 
-            <ToggleButton Grid.Column="2" Grid.Row="1" Style="{StaticResource ToggleButtonStyle1}" Content="Server" IsChecked="{Binding IsServer}"
-                          IsEnabled="{Binding Path=IsActive, Converter={StaticResource BooleanToInverseConverter}}"/>
+            <!--<ToggleButton Grid.Column="2" Grid.Row="1" Style="{StaticResource ToggleButtonStyle1}" Content="Server" IsChecked="{Binding IsServer}"
+                          IsEnabled="{Binding Path=IsActive}"/>-->
 
             <Button Name="bSwitchServerState" Grid.Column="3" Grid.Row="0" Grid.RowSpan="2" Command="{Binding StartConnectionCMD}">
                 <Button.Content>
                     <MultiBinding Converter="{StaticResource BooleanToStartStopConverter}">
-                        <Binding Path="IsServer"/>
                         <Binding Path="IsActive"/>
                     </MultiBinding>
                 </Button.Content>
@@ -90,33 +89,12 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Grid.Column="0" Grid.Row="0" Text="Target Username:"/>
-                <TextBox Name="tbTargetUsername" Grid.Column="1" Grid.Row="0" Text="{Binding TargetUsername}"/>
-
                 <TextBlock Grid.Column="0" Grid.Row="1" Text="Message:"/>
                 <TextBox Name="tbMessage" Grid.Column="1" Grid.Row="1" Text="{Binding MessageContent}"/>
-
-                <!--CommandParameter="{Binding Text, ElementName=tbTargetUsername}"-->
-
-                <!--<Button Name="bSend" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Content="Send" 
-                        Command="{Binding SendMessageCMD}">
-
-                    <Button.CommandParameter>
-                        <MultiBinding Converter="{StaticResource PassThroughConverter}">
-                            <Binding Path="Text" ElementName="tbTargetUsername"></Binding>
-                            <Binding Path="Text" ElementName="tbMessage"></Binding>
-                        </MultiBinding>
-                    </Button.CommandParameter>
-                </Button>-->
-
-                <!--<local:MessgaeData _Username="{Binding Text, ElementName=tbTargetUsername}" _Message="{Binding Text, ElementName=tbMessage}"/>-->
 
                 <Button Name="bSend" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" Content="Send" 
                         Command="{Binding SendMessageCMD}">
 
-                    <!--<Button.CommandParameter>
-                        <local:MessgaeData _Username="{Binding Text, ElementName=tbTargetUsername}" _Message="{Binding Text, ElementName=tbMessage}"/>
-                    </Button.CommandParameter>-->
                 </Button>
 
 

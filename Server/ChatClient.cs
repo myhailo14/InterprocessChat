@@ -5,9 +5,9 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows;
-using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace SocketChat
@@ -22,20 +22,17 @@ namespace SocketChat
 
         public bool IsActive
         {
-            get
-            {
-                return this.isActive;
-            }
+            get => isActive;
             set
             {
-                this.isActive = value;
-                this.OnIsActiveChanged(EventArgs.Empty);
+                isActive = value;
+                OnIsActiveChanged(EventArgs.Empty);
             }
         }
 
         public IPAddress IPAddress { get; set; }
         public ushort Port { get; set; }
-        public IPEndPoint IPEndPoint { get { return new IPEndPoint(this.IPAddress, this.Port); } }
+        public IPEndPoint IPEndPoint => new IPEndPoint(IPAddress, Port);
         public int ClientIdCounter { get; set; }
         public string SourceUsername { get; set; }
 
@@ -46,100 +43,101 @@ namespace SocketChat
 
         public ChatClient()
         {
-            this.Dispatcher = Dispatcher.CurrentDispatcher;
-            this.ClientList = new BindingList<Client>();
-            this.ChatList = new BindingList<string>();
+            Dispatcher = Dispatcher.CurrentDispatcher;
+            ClientList = new BindingList<Client>();
+            ChatList = new BindingList<string>();
 
-            this.ClientIdCounter = 0;
-            this.SourceUsername = "Client" + new Random().Next(0, 99).ToString(); // random username
+            SourceUsername = "Client" + new Random().Next(0, 99); // random username
         }
 
         public void StartConnection()
         {
-            if (this.IsActive)
+            if (IsActive)
             {
                 return;
             }
 
-            this.Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            this.Socket.Connect(this.IPEndPoint);
-            this.SetUsername(this.SourceUsername);
+            Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            Socket.Connect(IPEndPoint);
+            Auth(SourceUsername);
 
-            this.Thread = new Thread(() => this.ReceiveMessages());
-            this.Thread.Start();
+            Thread = new Thread(() => ReceiveMessages());
+            Thread.Start();
 
-            this.IsActive = true;
+            IsActive = true;
         }
 
-        private void SetUsername(string newUsername)
+        private void Auth(string username)
         {
-            string cmd = string.Format("/setname {0}", newUsername);
+            string cmd = $"auth {username}";
 
-            this.Socket.Send(Encoding.Unicode.GetBytes(cmd));
+            Socket.Send(Encoding.Unicode.GetBytes(cmd));
         }
 
         public void ReceiveMessages()
         {
+            byte[] inf = new byte[1024];
             while (true)
             {
-                byte[] inf = new byte[1024];
 
                 try
                 {
-                    if (!IsSocketConnected(this.Socket))
+                    if (!IsSocketConnected(Socket))
                     {
-                        this.Dispatcher.Invoke(new Action(() =>
+                        Dispatcher.Invoke(new Action(() =>
                         {
-                            this.StopConnection();
+                            StopConnection();
                         }));
                         return;
                     }
 
-                    int x = this.Socket.Receive(inf);
+                    for (int i = 0; i < inf.Length; i++)
+                    {
+                        inf[i] = 0;
+                    }
+
+                    int x = Socket.Receive(inf);
 
                     if (x > 0)
                     {
                         string strMessage = Encoding.Unicode.GetString(inf);
 
-                        // Adds new users to existing client list
-                        if (strMessage.Substring(0, 8) == "/setname")
+                        Console.WriteLine(strMessage);
+
+                        if (strMessage.Contains("update"))
                         {
-                            string newUsername = strMessage.Replace("/setname ", "").Trim('\0');
-
-                            this.Dispatcher.Invoke(new Action(() =>
+                            Dispatcher.Invoke(new Action(() =>
                             {
-                                this.ClientList.Add(new Client() { ID = ClientIdCounter, Username = newUsername });
-                            }));
-
-                        }
-                        // Removes old users from existing client list
-                        else if (strMessage.Substring(0, 8) == "/delname")
-                        {
-                            string oldUsername = strMessage.Replace("/delname ", "").Trim('\0');
-
-                            Client oldUser = this.ClientList.First(item => item.Username == oldUsername);
-
-                            this.Dispatcher.Invoke(new Action(() =>
-                            {
-                                this.ClientList.Remove(oldUser);
+                                ClientList.Clear();
+                                MatchCollection matches = Regex.Matches(strMessage.Replace("update ", String.Empty), 
+                                    "Client[0-9]{1,2}");
+                                foreach (Match match in matches)
+                                {
+                                    ClientList.Add(new Client() { Username = match.Value });
+                                }
                             }));
                         }
-                        else
+                        else if (strMessage.Contains("message"))
                         {
-                            strMessage = Encoding.Unicode.GetString(inf).Trim('\0');
-
-                            this.Dispatcher.Invoke(new Action(() =>
+                            MatchCollection matches = Regex.Matches(strMessage.Replace("message ", String.Empty),
+                                "[a-zA-Zа-яА-ЯїЇґҐ0-9]+");
+                            string message = "";
+                            foreach (Match match in matches)
                             {
-                                this.ChatList.Add(strMessage);
+                                message += match.Value + " ";
+                            }
+                            Dispatcher.Invoke(new Action(() =>
+                            {
+                                ChatList.Add(message);
                             }));
+                        }
                     }
-                }
                 }
                 catch (SocketException ex)
                 {
-                    this.Dispatcher.Invoke(new Action(() =>
+                    Dispatcher.Invoke(() =>
                     {
-                        this.StopConnection();
+                        StopConnection();
 
                         // Concurrently closing a listener that is accepting at the time causes exception 10004.
                         Debug.WriteLineIf(ex.ErrorCode != 10004, $"*EXCEPTION* {ex.ErrorCode}: {ex.Message}");
@@ -147,7 +145,7 @@ namespace SocketChat
                         {
                             MessageBox.Show(ex.Message);
                         }
-                    }));
+                    });
 
                     return;
                 }
@@ -174,29 +172,26 @@ namespace SocketChat
 
         public void StopConnection()
         {
-            if (!this.IsActive)
-            {
-                return;
-            }
+            
 
-            if (this.Socket != null && this.Thread != null)
+            if (Socket != null && Thread != null)
             {
                 //this.thread.Abort(); MainThread = null;
-                this.Socket.Shutdown(SocketShutdown.Both);
+                Socket.Shutdown(SocketShutdown.Both);
                 //this.socket.Disconnect(false);
-                this.Socket.Dispose();
-                this.Socket = null;
-                this.Thread = null;
+                Socket.Dispose();
+                Socket = null;
+                Thread = null;
             }
 
-            this.ChatList.Clear();
-            this.ClientList.Clear();
-            this.IsActive = false;
+            ChatList.Clear();
+            ClientList.Clear();
+            IsActive = false;
         }
 
         public void OnIsActiveChanged(EventArgs e)
         {
-            this.IsActiveChanged?.Invoke(this, e);
+            IsActiveChanged?.Invoke(this, e);
         }
     }
 }

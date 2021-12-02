@@ -9,7 +9,7 @@ namespace SocketChat
     {
         public MainWindow()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
     }
 }

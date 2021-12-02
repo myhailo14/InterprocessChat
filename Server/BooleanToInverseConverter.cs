@@ -9,14 +9,21 @@ namespace SocketChat
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (targetType != typeof(bool))
+            {
                 throw new InvalidOperationException("The target must be a boolean");
+            }
+
+            if (value == null || value.GetType() != typeof(bool))
+            {
+                throw new ArgumentException("The value must be boolean.", nameof(value));
+            }
 
             return !(bool)value;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            throw new NotSupportedException();
+            throw new NotImplementedException();
         }
     }
 }
