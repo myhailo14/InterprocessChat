@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace SocketChat
+namespace SocketChat.Client
 {
     public class Client : IDisposable, INotifyPropertyChanged
     {

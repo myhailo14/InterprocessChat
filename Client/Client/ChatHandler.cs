@@ -1,30 +1,28 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
 
-namespace SocketChat
+namespace SocketChat.Client
 {
-    public class ClientSelector : INotifyPropertyChanged
+    public class ChatHandler : INotifyPropertyChanged
     {
         private IChat _chatInterface;
-        private string messageContent;
+        private string _messageContent;
 
-        public ClientSelector()
+        public ChatHandler()
         {
-            StartConnectionCMD = new RelayCommand(StartConnection);
-            SendMessageCMD = new RelayCommand(() => SendMessage(MessageContent));
-            SelectClient();
+            StartConnectionCmd = new RelayCommand(StartConnection);
+            SendMessageCmd = new RelayCommand(() => SendMessage(MessageContent));
+            CreateChat();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public ICommand StartConnectionCMD { get; }
-        public ICommand SendMessageCMD { get; }
+        public ICommand StartConnectionCmd { get; }
+        public ICommand SendMessageCmd { get; }
 
         public BindingList<string> ChatList
         {
@@ -107,15 +105,15 @@ namespace SocketChat
 
         public string MessageContent
         {
-            get => messageContent;
+            get => _messageContent;
             set
             {
-                messageContent = value;
+                _messageContent = value;
                 NotifyPropertyChanged("MessageContent");
             }
         }
 
-        private void SelectClient()
+        private void CreateChat()
         {
             
             _chatInterface = new ChatClient();
@@ -128,7 +126,7 @@ namespace SocketChat
 
             ChatList = new BindingList<string>();
 
-            _chatInterface.IsActiveChanged = new EventHandler(IsActiveBool);
+            _chatInterface.IsActiveChanged = IsActiveBool;
 
             _chatInterface.ClientList.ListChanged += (sender, e) =>
             {
@@ -160,12 +158,8 @@ namespace SocketChat
 
         public void SendMessage(string messageContent)
         {
-            //string sourceMessage = _chatInterface.SourceUsername + ": " + messageContent;
-
             string message = $"message {messageContent}";
             _chatInterface.Socket.Send(Encoding.Unicode.GetBytes(message));
-
-           // _chatInterface.ChatList.Add(sourceMessage);
         }
 
         public void IsActiveBool(object sender, EventArgs e)

@@ -1,9 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace SocketChat
+namespace SocketChat.Client
 {
     public class RelayCommand : ICommand
     {
@@ -13,7 +11,7 @@ namespace SocketChat
 
         public RelayCommand(Action execute, Func<bool> canExecute)
         {
-            this.execute = execute ?? throw new ArgumentNullException("execute");
+            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
             this.canExecute = canExecute;
         }
 

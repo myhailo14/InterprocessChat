@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace SocketChat
+namespace SocketChat.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

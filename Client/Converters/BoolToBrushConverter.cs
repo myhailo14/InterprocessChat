@@ -2,9 +2,9 @@
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace SocketChat
+namespace SocketChat.Converters
 {
-    public class BooleanToBrushConverter : IValueConverter
+    public class BoolToBrushConverter : IValueConverter
     {
         private readonly Brush _okBrush = new SolidColorBrush(Color.FromArgb(255, 192, 255, 192));
         private readonly Brush _errorBrush = new SolidColorBrush(Color.FromArgb(255, 255, 192, 192));

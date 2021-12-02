@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Threading;
 
-namespace SocketChat
+namespace SocketChat.Client
 {
     public interface IChat
     {
