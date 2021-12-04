@@ -53,13 +53,13 @@ public class ClientListener extends Thread {
                 } else {
                     log.info(client + " disconnected from the server");
                     close();
-                    messages.add(new Message(this, Message.Type.UPDATE));
+                    messages.add(new Message(client, Message.Type.UPDATE));
                     return;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 close();
-                messages.add(new Message(this, Message.Type.UPDATE));
+                messages.add(new Message(client, Message.Type.UPDATE));
                 log.info("Socket was closed incorrectly");
                 return;
             }
