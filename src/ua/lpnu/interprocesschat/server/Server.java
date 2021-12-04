@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 public class Server extends Thread {
@@ -14,7 +13,7 @@ public class Server extends Thread {
 
     private ServerSocket server;
 
-    private List<ClientListener> clientListenerList;
+    private EventArrayList<ClientListener> clientListenerList;
 
     private EventQueue<Message> messages;
 
@@ -31,7 +30,7 @@ public class Server extends Thread {
             server = new ServerSocket(port, 50, InetAddress.getByName(ip));
             server.setReceiveBufferSize(1024);
             messages = new EventQueue<>();
-            clientListenerList = new ArrayList<>();
+            clientListenerList = new EventArrayList<>();
             messages.addEventHandler(() -> {
                 Optional<Message> optionalMessage = Optional.ofNullable(messages.poll());
                 if (optionalMessage.isPresent()) {
@@ -53,7 +52,28 @@ public class Server extends Thread {
                         }
                     }
                 }
-            });
+            }, EventType.ADD);
+            clientListenerList.addEventHandler(() -> messages.add(new Message(null, Message.Type.UPDATE)), EventType.REMOVE);
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(20L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    clientListenerList.removeIf(p -> !p.isAlive() || p.isSocketClosed() || p.isInterrupted());
+                }
+            }).start();
+            new Thread(() -> {
+                while (true) {
+                    try {
+                        Thread.sleep(10000L);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    System.out.println(clientListenerList);
+                }
+            }).start();
             log.info("Server was started.");
         } catch (IOException e) {
             e.printStackTrace();
@@ -66,7 +86,6 @@ public class Server extends Thread {
             while (true) {
                 Socket socket = server.accept();
                 clientListenerList.add(new ClientListener(new Client(), socket, messages));
-                clientListenerList.removeIf(p -> !p.isAlive() || p.isSocketClosed());
             }
         } catch (IOException e) {
             e.printStackTrace();

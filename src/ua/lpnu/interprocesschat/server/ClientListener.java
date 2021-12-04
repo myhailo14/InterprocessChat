@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.logging.Logger;
 
 public class ClientListener extends Thread {
@@ -40,7 +42,7 @@ public class ClientListener extends Thread {
         byte[] buffer = new byte[1024];
         Arrays.fill(buffer, (byte) -1);
         CommandDispatcher commandDispatcher = new CommandDispatcher(buffer, client, messages);
-        while (true) {
+        while (!socket.isClosed()) {
             try {
                 Arrays.fill(buffer, (byte) -1);
                 System.out.println(this);
@@ -51,17 +53,13 @@ public class ClientListener extends Thread {
                         log.info(client + " sent incorrect message.");
                     }
                 } else {
-                    log.info(client + " disconnected from the server");
                     close();
-                    messages.add(new Message(client, Message.Type.UPDATE));
+                    log.info(client + " disconnected from the server");
+                    interrupt();
                     return;
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                close();
-                messages.add(new Message(client, Message.Type.UPDATE));
-                log.info("Socket was closed incorrectly");
-                return;
             }
         }
     }
