@@ -14,7 +14,7 @@ namespace SocketChat.Client
 
         public ChatHandler()
         {
-            StartConnectionCmd = new RelayCommand(StartConnection);
+            StartConnectionCmd = new RelayCommand(ToggleConnection);
             SendMessageCmd = new RelayCommand(() => SendMessage(MessageContent));
             CreateChat();
         }
@@ -135,7 +135,7 @@ namespace SocketChat.Client
 
         }
 
-        public void StartConnection()
+        public void ToggleConnection()
         {
 
             if (!IsActive)
@@ -153,7 +153,7 @@ namespace SocketChat.Client
             }
 
             _chatInterface.StopConnection();
-
+            Environment.Exit(0);
         }
 
         public void SendMessage(string messageContent)

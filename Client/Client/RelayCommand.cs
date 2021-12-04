@@ -5,14 +5,14 @@ namespace SocketChat.Client
 {
     public class RelayCommand : ICommand
     {
-        protected readonly Func<bool> canExecute;
+        protected readonly Func<bool> _canExecute;
 
-        protected readonly Action execute;
+        protected readonly Action _execute;
 
         public RelayCommand(Action execute, Func<bool> canExecute)
         {
-            this.execute = execute ?? throw new ArgumentNullException(nameof(execute));
-            this.canExecute = canExecute;
+            this._execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            this._canExecute = canExecute;
         }
 
         public RelayCommand(Action execute) : this(execute, null)
@@ -23,7 +23,7 @@ namespace SocketChat.Client
         {
             add
             {
-                if (canExecute != null)
+                if (_canExecute != null)
                 {
                     CommandManager.RequerySuggested += value;
                 }
@@ -31,7 +31,7 @@ namespace SocketChat.Client
 
             remove
             {
-                if (canExecute != null)
+                if (_canExecute != null)
                 {
                     CommandManager.RequerySuggested -= value;
                 }
@@ -40,12 +40,12 @@ namespace SocketChat.Client
 
         public virtual bool CanExecute(object parameter)
         {
-            return canExecute == null || canExecute();
+            return _canExecute == null || _canExecute();
         }
 
         public virtual void Execute(object parameter)
         {
-            execute();
+            _execute();
         }
     }
 }
