@@ -6,6 +6,7 @@
 
     <converters:BooleanToStartStopConverter x:Key="BooleanToStartStopConverter" />
     <converters:BoolToBrushConverter x:Key="BooleanToBrushConverter" />
+    <converters:BoolInverseConverter x:Key="BoolInverseConverter" />
 
     <Style TargetType="Rectangle">
         <Setter Property="RadiusX" Value="5"/>

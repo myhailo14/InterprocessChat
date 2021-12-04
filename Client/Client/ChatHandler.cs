@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Windows;
 using System.Windows.Input;
 
@@ -132,28 +133,27 @@ namespace SocketChat.Client
             {
                 NotifyPropertyChanged("ActiveClients");
             };
-
         }
 
         public void ToggleConnection()
         {
-
-            if (!IsActive)
+            if (IsActive)
             {
-                try
-                {
-                    _chatInterface.StartConnection();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                }
-
+                string message = $"update {SourceUsername}";
+                _chatInterface.Socket.Send(Encoding.Unicode.GetBytes(message));
+                _chatInterface.StopConnection();
+                Environment.Exit(0);
                 return;
             }
 
-            _chatInterface.StopConnection();
-            Environment.Exit(0);
+            try
+            {
+                _chatInterface.StartConnection();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public void SendMessage(string messageContent)

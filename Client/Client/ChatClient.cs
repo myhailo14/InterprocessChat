@@ -143,10 +143,7 @@ namespace SocketChat.Client
                         Environment.Exit(0);
                     }
 
-                    if (ex.ErrorCode != 10004)
-                    {
-                        MessageBox.Show(ex.Message);
-                    }
+                    MessageBox.Show(ex.Message);
                 });
 
                 return false;
@@ -179,7 +176,7 @@ namespace SocketChat.Client
                 MatchCollection matches = Regex
                     .Matches(
                         strMessage.Replace("update ", ""),
-                        "Client[0-9]{1,2}"
+                        "[a-zA-Z0-9]+"
                     );
                 foreach (Match match in matches)
                 {
@@ -205,7 +202,8 @@ namespace SocketChat.Client
             {
                 Thread.Abort();
                 Socket.Shutdown(SocketShutdown.Both);
-                Socket.Disconnect(true);
+                Socket.Disconnect(false);
+                Socket.Close();
             }
 
             ChatList.Clear();
