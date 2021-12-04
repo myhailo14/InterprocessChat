@@ -45,7 +45,6 @@ public class ClientListener extends Thread {
         while (!socket.isClosed()) {
             try {
                 Arrays.fill(buffer, (byte) -1);
-                System.out.println(this);
                 int read = in.read(buffer);
                 if (read != -1) {
                     boolean result = commandDispatcher.dispatch();

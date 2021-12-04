@@ -64,16 +64,6 @@ public class Server extends Thread {
                     clientListenerList.removeIf(p -> !p.isAlive() || p.isSocketClosed() || p.isInterrupted());
                 }
             }).start();
-            new Thread(() -> {
-                while (true) {
-                    try {
-                        Thread.sleep(10000L);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    System.out.println(clientListenerList);
-                }
-            }).start();
             log.info("Server was started.");
         } catch (IOException e) {
             e.printStackTrace();

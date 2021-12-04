@@ -2,9 +2,10 @@ package ua.lpnu.interprocesschat.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 
-public class EventArrayList <T> extends ArrayList<T> {
+public class EventArrayList <T> extends CopyOnWriteArrayList<T> {
 
     private final List<Event> removeEventList;
 
@@ -31,7 +32,6 @@ public class EventArrayList <T> extends ArrayList<T> {
     public boolean removeIf(Predicate<? super T> filter) {
         boolean removeIf = super.removeIf(filter);
         if (removeIf) {
-            System.out.println(this);
             removeEventList.forEach(Event::on);
         }
         return removeIf;
@@ -39,8 +39,8 @@ public class EventArrayList <T> extends ArrayList<T> {
 
     @Override
     public boolean add(T t) {
-        boolean add = super.add(t);
-        if (add) addEventList.forEach(Event::on);
-        return add;
+        super.add(t);
+        addEventList.forEach(Event::on);
+        return true;
     }
 }
