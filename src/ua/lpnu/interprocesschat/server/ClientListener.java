@@ -59,6 +59,8 @@ public class ClientListener extends Thread {
                     return;
                 }
             } catch (IOException e) {
+                close();
+                interrupt();
                 e.printStackTrace();
             }
         }
