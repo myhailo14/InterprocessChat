@@ -132,6 +132,17 @@ namespace SocketChat.Client
 
                     // Concurrently closing a listener that is accepting at the time causes exception 10004.
                     Debug.WriteLineIf(ex.ErrorCode != 10004, $"*EXCEPTION* {ex.ErrorCode}: {ex.Message}");
+                    if (ex.ErrorCode == 10054)
+                    {
+                        MessageBox.Show(
+                            ex.Message + "\nApplication will be closed.",
+                            "Error",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error
+                        );
+                        Environment.Exit(0);
+                    }
+
                     if (ex.ErrorCode != 10004)
                     {
                         MessageBox.Show(ex.Message);
@@ -195,8 +206,6 @@ namespace SocketChat.Client
                 Thread.Abort();
                 Socket.Shutdown(SocketShutdown.Both);
                 Socket.Disconnect(true);
-                // Socket = null;
-                // Thread = null;
             }
 
             ChatList.Clear();
