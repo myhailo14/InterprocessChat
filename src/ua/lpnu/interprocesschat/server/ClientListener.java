@@ -35,10 +35,6 @@ public class ClientListener extends Thread {
         }
     }
 
-    public boolean isSocketClosed() {
-        return socket.isClosed();
-    }
-
     @Override
     public void run() {
         byte[] buffer = new byte[1024];
@@ -47,6 +43,7 @@ public class ClientListener extends Thread {
         while (true) {
             try {
                 Arrays.fill(buffer, (byte) -1);
+                System.out.println(this);
                 int read = in.read(buffer);
                 if (read != -1) {
                     boolean result = commandDispatcher.dispatch();
@@ -55,19 +52,24 @@ public class ClientListener extends Thread {
                     }
                 } else {
                     log.info(client + " disconnected from the server");
-                    closeSocket();
+                    close();
+                    messages.add(new Message(this, Message.Type.UPDATE));
                     return;
                 }
             } catch (IOException e) {
-                closeSocket();
+                e.printStackTrace();
+                close();
+                messages.add(new Message(this, Message.Type.UPDATE));
                 log.info("Socket was closed incorrectly");
                 return;
             }
         }
     }
 
-    private void closeSocket() {
+    private void close() {
         try {
+            in.close();
+            out.close();
             socket.close();
         } catch (IOException e) {
             log.info("Cannot close socket");
@@ -87,11 +89,19 @@ public class ClientListener extends Thread {
         }
     }
 
-    public void tap() {
-        try {
-            in.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public String toString() {
+        return "ClientListener{" +
+                "Thread=" + super.toString() +
+                ", client=" + client +
+                ", messages=" + messages +
+                ", in=" + in +
+                ", out=" + out +
+                ", socket=" + socket +
+                '}';
+    }
+
+    public boolean isSocketClosed() {
+        return socket.isClosed();
     }
 }

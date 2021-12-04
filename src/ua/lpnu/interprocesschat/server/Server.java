@@ -66,7 +66,7 @@ public class Server extends Thread {
             while (true) {
                 Socket socket = server.accept();
                 clientListenerList.add(new ClientListener(new Client(), socket, messages));
-                clientListenerList.removeIf(p -> !p.isAlive());
+                clientListenerList.removeIf(p -> !p.isAlive() || p.isSocketClosed());
             }
         } catch (IOException e) {
             e.printStackTrace();
