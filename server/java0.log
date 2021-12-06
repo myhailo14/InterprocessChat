@@ -1,0 +1,16 @@
+груд. 04, 2021 3:35:07 ПП ua.lpnu.interprocesschat.server.Server <init>
+INFO: Server is starting...
+груд. 04, 2021 3:35:07 ПП ua.lpnu.interprocesschat.server.Server <init>
+INFO: Server was started.
+груд. 04, 2021 3:35:16 ПП ua.lpnu.interprocesschat.server.CommandDispatcher dispatch
+INFO: null sent = [auth Client11] to the server
+груд. 04, 2021 3:35:16 ПП ua.lpnu.interprocesschat.server.Server lambda$new$2
+INFO: UPDATE command was executed
+груд. 04, 2021 3:35:20 ПП ua.lpnu.interprocesschat.server.CommandDispatcher dispatch
+INFO: Client11 sent = [message  greg greerg egegre] to the server
+груд. 04, 2021 3:35:20 ПП ua.lpnu.interprocesschat.server.Server lambda$new$2
+INFO: MESSAGE command was executed
+груд. 04, 2021 3:35:26 ПП ua.lpnu.interprocesschat.server.CommandDispatcher dispatch
+INFO: Client11 sent = [message  greg greerg dqw] to the server
+груд. 04, 2021 3:35:26 ПП ua.lpnu.interprocesschat.server.Server lambda$new$2
+INFO: MESSAGE command was executed
