@@ -61,8 +61,16 @@ namespace SocketChat.Client
                 Socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             }
 
-            await Socket.ConnectAsync(IPEndPoint);
-
+            try
+            {
+                await Socket.ConnectAsync(IPEndPoint);
+            }
+            catch (SocketException ex)
+            {
+                MessageBox.Show(ex.Message, "Socket error.", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            
             Auth(SourceUsername);
 
             Thread = new Thread(ReceiveMessages);
